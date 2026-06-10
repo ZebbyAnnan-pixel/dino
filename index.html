@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>amrita.gg - Custom Dino Games</title>
+<style>
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+    text-align: center;
+}
+header {
+    padding: 20px;
+    background: #1e293b;
+}
+h1 {
+    color: #38bdf8;
+}
+section {
+    padding: 40px 20px;
+}
+button {
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    background: #22c55e;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+}
+button:hover {
+    background: #16a34a;
+}
+.features {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 15px;
+    width: 250px;
+}
+footer {
+    padding: 20px;
+    background: #1e293b;
+}
+
+/* Game overlay */
+#game-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #0f172a;
+    z-index: 1000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 10px 0;
+}
+#game-overlay.active {
+    display: flex;
+}
+#game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 800px;
+    padding: 10px 20px;
+}
+#game-header h2 {
+    margin: 0;
+    color: #38bdf8;
+    font-size: 20px;
+}
+#back-btn {
+    padding: 8px 18px;
+    font-size: 14px;
+    background: #ef4444;
+    border-radius: 8px;
+}
+#back-btn:hover {
+    background: #dc2626;
+}
+#game-canvas {
+    border: 2px solid #38bdf8;
+    border-radius: 8px;
+    background: #1e293b;
+    max-width: 100%;
+    display: block;
+}
+#game-score {
+    font-size: 18px;
+    margin-top: 10px;
+    color: #38bdf8;
+    font-family: monospace;
+}
+#game-instructions {
+    margin-top: 10px;
+    color: #94a3b8;
+    font-size: 14px;
+}
+#sound-toggle {
+    padding: 8px 18px;
+    font-size: 14px;
+    background: #6366f1;
+    border-radius: 8px;
+    margin-left: 8px;
+}
+#sound-toggle:hover {
+    background: #4f46e5;
+}
+
+/* Mode Selection Dashboard */
+#mode-select {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #0f172a;
+    z-index: 999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    overflow-y: auto;
+    padding: 40px 20px;
+}
+#mode-select.active {
+    display: flex;
+}
+#mode-select h2 {
+    color: #38bdf8;
+    font-size: 28px;
+    margin: 0;
+}
+#mode-select p {
+    color: #94a3b8;
+    margin: 0;
+    font-size: 15px;
+}
+.mode-cards {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.mode-card {
+    background: #1e293b;
+    border: 2px solid #334155;
+    border-radius: 16px;
+    padding: 30px 36px;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    text-align: center;
+    width: 220px;
+}
+.mode-card:hover {
+    transform: translateY(-6px);
+    border-color: #38bdf8;
+    box-shadow: 0 8px 30px rgba(56, 189, 248, 0.15);
+}
+.mode-card .mode-icon {
+    font-size: 60px;
+    margin-bottom: 12px;
+    display: block;
+}
+.mode-card .mode-icon img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #f59e0b;
+}
+.mode-card h3 {
+    color: #f1f5f9;
+    font-size: 20px;
+    margin: 8px 0 6px;
+}
+.mode-card p {
+    color: #94a3b8;
+    font-size: 13px;
+    margin: 0;
+}
+#mode-back-btn {
+    padding: 10px 24px;
+    font-size: 14px;
+    background: #ef4444;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+#mode-back-btn:hover {
+    background: #dc2626;
+}
+
+/* Watermark */
+.watermark {
+    position: fixed;
+    bottom: 16px;
+    right: 20px;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0.35;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: #38bdf8;
+    text-transform: uppercase;
+    text-shadow: 0 0 6px rgba(56, 189, 248, 0.3);
+    line-height: 1.6;
+    text-align: right;
+    transition: opacity 0.4s ease;
+}
+.watermark:hover {
+    opacity: 0.6;
+}
+.watermark .wm-label {
+    font-size: 9px;
+    color: #64748b;
+    letter-spacing: 2.5px;
+    text-shadow: none;
+}
+.watermark .wm-name {
+    font-size: 13px;
+    font-weight: bold;
+    background: linear-gradient(90deg, #38bdf8, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Canvas wrapper for scaling */
+#canvas-wrap {
+    width: 100%;
+    max-width: 770px;
+    padding: 0 10px;
+    display: flex;
+    justify-content: center;
+}
+
+/* Tablet & small desktop */
+@media (max-width: 860px) {
+    h1 { font-size: 24px; }
+    h2 { font-size: 20px; }
+    section { padding: 28px 16px; }
+    .card { width: 200px; padding: 16px; }
+    .mode-card { width: 180px; padding: 22px 20px; }
+    .mode-card .mode-icon { font-size: 48px; }
+    .mode-card .mode-icon img { width: 56px; height: 56px; }
+    #game-header { padding: 8px 12px; }
+    #game-header h2 { font-size: 17px; }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    h1 { font-size: 20px; }
+    header p { font-size: 13px; }
+    h2 { font-size: 18px; }
+    section { padding: 22px 12px; }
+    section p { font-size: 14px; }
+    button { padding: 12px 22px; font-size: 16px; }
+    .features { gap: 12px; }
+    .card { width: 100%; max-width: 300px; padding: 14px; }
+    .card h3 { font-size: 16px; }
+    .card p { font-size: 13px; }
+
+    /* Mode select */
+    #mode-select { gap: 18px; padding: 20px; }
+    #mode-select h2 { font-size: 22px; }
+    .mode-cards { gap: 14px; flex-direction: column; align-items: center; }
+    .mode-card { width: 80%; max-width: 260px; padding: 18px 16px; display: flex; align-items: center; gap: 14px; }
+    .mode-card .mode-icon { font-size: 40px; margin-bottom: 0; flex-shrink: 0; }
+    .mode-card .mode-icon img { width: 48px; height: 48px; }
+    .mode-card h3 { font-size: 17px; margin: 0 0 2px; text-align: left; }
+    .mode-card p { text-align: left; }
+
+    /* Game overlay */
+    #game-header { padding: 6px 10px; }
+    #game-header h2 { font-size: 14px; white-space: nowrap; }
+    #back-btn, #sound-toggle { padding: 6px 12px; font-size: 12px; }
+    #game-score { font-size: 15px; }
+    #game-instructions { font-size: 12px; padding: 0 10px; }
+
+    footer { padding: 14px; font-size: 13px; }
+    .watermark { font-size: 9px; bottom: 10px; right: 12px; }
+    .watermark .wm-name { font-size: 11px; }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+    h1 { font-size: 18px; }
+    .mode-card { width: 90%; padding: 14px 12px; }
+    #game-header h2 { font-size: 12px; }
+    #back-btn, #sound-toggle { padding: 5px 10px; font-size: 11px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>amrita.gg</h1>
+    <p>Dino Games by Amrita</p>
+</header>
+
+<section>
+    <h2>Play Custom Dino Games</h2>
+    <p>Experience unique versions of the classic Dino runner game with new themes, speed modes, and crazy obstacles!</p>
+    <button onclick="startGame()">Play Now</button>
+</section>
+
+<section>
+    <h2>What is Custom Dino?</h2>
+    <p>
+        Custom Dino games are advanced versions of the classic offline browser dinosaur game.
+        Instead of the normal desert and cactus theme, custom versions include:
+    </p>
+    <div class="features">
+        <div class="card">
+            <h3>🔥 Speed Modes</h3>
+            <p>Extreme speed levels and survival challenges.</p>
+        </div>
+        <div class="card">
+            <h3>🌌 New Themes</h3>
+            <p>Space, Jungle, Neon, and Dark mode environments.</p>
+        </div>
+        <div class="card">
+            <h3>💀 New Obstacles</h3>
+            <p>Flying enemies, traps, and moving barriers.</p>
+        </div>
+        <div class="card">
+            <h3>🏆 Leaderboards</h3>
+            <p>Compete for high scores with friends.</p>
+        </div>
+    </div>
+</section>
+
+<section>
+    <h2>About Amrita</h2>
+    <p>
+        amrita.gg is created to bring fun, custom Dino gaming experiences to players worldwide.
+        Every game mode is designed to be fast, exciting, and competitive.
+    </p>
+</section>
+
+<footer>
+    <p>&copy; 2026 amrita.gg | Custom Dino Games</p>
+</footer>
+
+<!-- Mode Selection Dashboard -->
+<div id="mode-select">
+    <h2>Choose Your Mode</h2>
+    <p>Select a game mode to start playing!</p>
+    <div class="mode-cards">
+        <div class="mode-card" onclick="selectMode('normal')">
+            <span class="mode-icon">🦖</span>
+            <h3>Normal</h3>
+            <p>Classic dino runner with the original character.</p>
+        </div>
+        <div class="mode-card" onclick="selectMode('rishi')">
+            <span class="mode-icon"><img src="assets/rishi-dino.jpg" alt="Rishi Dino"></span>
+            <h3>Rishi Dino</h3>
+            <p>Play as Rishi! A legendary dino runner.</p>
+        </div>
+    </div>
+    <button id="mode-back-btn" onclick="closeModeSelect()">Back</button>
+</div>
+
+<!-- Game Overlay -->
+<div id="game-overlay">
+    <div id="game-header">
+        <h2>amrita.gg Dino</h2>
+        <div>
+            <button id="sound-toggle" onclick="toggleSound()">Sound: ON</button>
+            <button id="back-btn" onclick="exitGame()">Back</button>
+        </div>
+    </div>
+    <div id="canvas-wrap"><canvas id="game-canvas" width="750" height="250"></canvas></div>
+    <div id="game-score">HI 00000 | 00000</div>
+    <div id="game-instructions">Press SPACE or tap to jump &mdash; DOWN arrow or swipe down to duck</div>
+</div>
+
+<script>
+// ========== SOUND ENGINE (Web Audio API) ==========
+let audioCtx = null;
+let soundEnabled = true;
+
+function ensureAudioCtx() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+}
+
+function playJumpSfx() {
+    if (!soundEnabled) return;
+    ensureAudioCtx();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + 0.15);
+}
+
+function playScoreSfx() {
+    if (!soundEnabled) return;
+    ensureAudioCtx();
+    const t = audioCtx.currentTime;
+    [523, 659, 784].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t + i * 0.07);
+        gain.gain.setValueAtTime(0.12, t + i * 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.07 + 0.12);
+        osc.start(t + i * 0.07);
+        osc.stop(t + i * 0.07 + 0.12);
+    });
+}
+
+function playGameOverSfx() {
+    if (!soundEnabled) return;
+    ensureAudioCtx();
+    const t = audioCtx.currentTime;
+    [400, 300, 200].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, t + i * 0.12);
+        gain.gain.setValueAtTime(0.15, t + i * 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.12 + 0.2);
+        osc.start(t + i * 0.12);
+        osc.stop(t + i * 0.12 + 0.2);
+    });
+}
+
+function playDuckSfx() {
+    if (!soundEnabled) return;
+    ensureAudioCtx();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + 0.1);
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('sound-toggle').textContent = 'Sound: ' + (soundEnabled ? 'ON' : 'OFF');
+}
+
+// ========== GAME ENGINE ==========
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+const W = 750, H = 250;
+const GROUND_Y = 200;
+
+// Mode system
+let currentMode = 'normal'; // 'normal' or 'rishi'
+const rishiImg = new Image();
+rishiImg.src = 'assets/rishi-dino.jpg';
+let rishiImgLoaded = false;
+rishiImg.onload = function() { rishiImgLoaded = true; };
+
+let gameRunning = false;
+let gameOver = false;
+let score = 0;
+let hiScore = 0;
+let speed = 5;
+let frameCount = 0;
+let animFrame = null;
+
+// Dino
+const dino = {
+    x: 50, y: GROUND_Y, w: 40, h: 44,
+    vy: 0, jumping: false, ducking: false,
+    duckH: 26, legFrame: 0
+};
+const GRAVITY = 0.6;
+const JUMP_VEL = -12;
+
+// Obstacles
+let obstacles = [];
+const OBSTACLE_TYPES = ['cactus_small', 'cactus_large', 'cactus_cluster', 'bird'];
+
+// Clouds
+let clouds = [];
+
+// Ground
+let groundOffset = 0;
+
+// Stars (background decoration)
+let stars = [];
+for (let i = 0; i < 30; i++) {
+    stars.push({ x: Math.random() * W, y: Math.random() * (GROUND_Y - 40), size: Math.random() * 2 + 0.5, blink: Math.random() * 100 });
+}
+
+function resetGame() {
+    dino.y = GROUND_Y;
+    dino.vy = 0;
+    dino.jumping = false;
+    dino.ducking = false;
+    dino.legFrame = 0;
+    obstacles = [];
+    clouds = [];
+    speed = 5;
+    score = 0;
+    frameCount = 0;
+    gameOver = false;
+    groundOffset = 0;
+    for (let i = 0; i < 3; i++) {
+        clouds.push({ x: W + Math.random() * 300, y: 30 + Math.random() * 60, w: 60 + Math.random() * 40 });
+    }
+}
+
+function spawnObstacle() {
+    const type = OBSTACLE_TYPES[Math.floor(Math.random() * OBSTACLE_TYPES.length)];
+    let ob = { x: W + 20, type: type };
+    if (type === 'cactus_small') {
+        ob.y = GROUND_Y; ob.w = 16; ob.h = 34;
+    } else if (type === 'cactus_large') {
+        ob.y = GROUND_Y - 6; ob.w = 22; ob.h = 48;
+    } else if (type === 'cactus_cluster') {
+        ob.y = GROUND_Y; ob.w = 40; ob.h = 34;
+    } else if (type === 'bird') {
+        const heights = [GROUND_Y - 10, GROUND_Y - 40, GROUND_Y - 70];
+        ob.y = heights[Math.floor(Math.random() * heights.length)];
+        ob.w = 36; ob.h = 20; ob.wingFrame = 0;
+    }
+    obstacles.push(ob);
+}
+
+// ========== DRAWING ==========
+
+function drawGround() {
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 1;
+    const gy = GROUND_Y + dino.h;
+    ctx.beginPath();
+    ctx.moveTo(0, gy);
+    ctx.lineTo(W, gy);
+    ctx.stroke();
+
+    // Ground texture (dots)
+    ctx.fillStyle = '#475569';
+    for (let i = 0; i < 30; i++) {
+        let gx = ((i * 27 - groundOffset) % W + W) % W;
+        ctx.fillRect(gx, gy + 3 + (i % 3) * 3, 2, 1);
+    }
+}
+
+function drawStars() {
+    stars.forEach(s => {
+        let alpha = 0.3 + 0.4 * Math.sin((frameCount + s.blink) * 0.03);
+        ctx.fillStyle = `rgba(148, 163, 184, ${alpha})`;
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+    });
+}
+
+function drawClouds() {
+    ctx.fillStyle = '#334155';
+    clouds.forEach(c => {
+        ctx.beginPath();
+        ctx.ellipse(c.x, c.y, c.w * 0.5, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(c.x - c.w * 0.2, c.y + 5, c.w * 0.3, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(c.x + c.w * 0.25, c.y + 3, c.w * 0.25, 9, 0, 0, Math.PI * 2);
+        ctx.fill();
+    });
+}
+
+function drawDino() {
+    const h = dino.ducking ? dino.duckH : dino.h;
+    const y = dino.ducking ? GROUND_Y + (dino.h - dino.duckH) : dino.y;
+    const w = dino.ducking ? 50 : dino.w;
+
+    // Rishi Dino mode - draw the image as the dino
+    if (currentMode === 'rishi' && rishiImgLoaded) {
+        ctx.save();
+        if (dino.ducking) {
+            // Ducking: wider, shorter image
+            ctx.drawImage(rishiImg, dino.x - 2, y - 2, w + 4, h + 4);
+        } else {
+            // Standing: draw a circular clipped version of the image
+            const cx = dino.x + w / 2;
+            const cy = y + h / 2;
+            const radius = Math.max(w, h) / 2 + 2;
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip();
+            ctx.drawImage(rishiImg, cx - radius, cy - radius, radius * 2, radius * 2);
+        }
+        ctx.restore();
+
+        // Draw legs below the image for running animation
+        ctx.fillStyle = '#f59e0b';
+        if (dino.ducking) {
+            const legOff = Math.floor(frameCount / 5) % 2;
+            ctx.fillRect(dino.x + 6, y + h - 2, 6, 8);
+            ctx.fillRect(dino.x + 20 + legOff * 4, y + h - 2, 6, 8);
+        } else if (dino.jumping) {
+            ctx.fillRect(dino.x + 8, y + h, 6, 10);
+            ctx.fillRect(dino.x + 20, y + h, 6, 10);
+        } else {
+            const legOff = Math.floor(frameCount / 5) % 2;
+            if (legOff === 0) {
+                ctx.fillRect(dino.x + 8, y + h, 6, 10);
+                ctx.fillRect(dino.x + 20, y + h - 4, 6, 8);
+            } else {
+                ctx.fillRect(dino.x + 8, y + h - 4, 6, 8);
+                ctx.fillRect(dino.x + 20, y + h, 6, 10);
+            }
+        }
+        return;
+    }
+
+    // Normal mode drawing
+    ctx.fillStyle = '#22c55e';
+
+    if (dino.ducking) {
+        // Ducking dino - wider, shorter
+        // Body
+        ctx.fillRect(dino.x, y + 2, w - 6, h - 10);
+        // Head
+        ctx.fillRect(dino.x + w - 16, y, 16, h - 12);
+        // Eye
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(dino.x + w - 8, y + 3, 4, 4);
+        ctx.fillStyle = '#22c55e';
+        // Legs
+        const legOff = Math.floor(frameCount / 5) % 2;
+        ctx.fillRect(dino.x + 6, y + h - 8, 6, 8);
+        ctx.fillRect(dino.x + 20 + legOff * 4, y + h - 8, 6, 8);
+    } else {
+        // Standing dino
+        // Body
+        ctx.fillRect(dino.x + 4, y + 12, 28, 22);
+        // Head
+        ctx.fillRect(dino.x + 14, y, 26, 18);
+        // Eye
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(dino.x + 32, y + 4, 4, 5);
+        ctx.fillStyle = '#22c55e';
+        // Mouth
+        ctx.fillRect(dino.x + 30, y + 14, 10, 2);
+        // Arms
+        ctx.fillRect(dino.x + 26, y + 22, 4, 10);
+        // Tail
+        ctx.fillRect(dino.x, y + 14, 8, 6);
+        ctx.fillRect(dino.x - 4, y + 12, 6, 4);
+        // Legs (animated when running)
+        if (dino.jumping) {
+            ctx.fillRect(dino.x + 8, y + 34, 6, 10);
+            ctx.fillRect(dino.x + 20, y + 34, 6, 10);
+        } else {
+            const legOff = Math.floor(frameCount / 5) % 2;
+            if (legOff === 0) {
+                ctx.fillRect(dino.x + 8, y + 34, 6, 10);
+                ctx.fillRect(dino.x + 20, y + 30, 6, 8);
+            } else {
+                ctx.fillRect(dino.x + 8, y + 30, 6, 8);
+                ctx.fillRect(dino.x + 20, y + 34, 6, 10);
+            }
+        }
+    }
+}
+
+function drawObstacle(ob) {
+    if (ob.type === 'bird') {
+        // Pterodactyl
+        ctx.fillStyle = '#ef4444';
+        // Body
+        ctx.fillRect(ob.x + 8, ob.y + 6, 20, 8);
+        // Head
+        ctx.fillRect(ob.x + 28, ob.y + 4, 8, 8);
+        // Beak
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(ob.x + 34, ob.y + 6, 6, 3);
+        ctx.fillStyle = '#ef4444';
+        // Wings (animated)
+        const wf = Math.floor(frameCount / 8) % 2;
+        if (wf === 0) {
+            ctx.fillRect(ob.x + 10, ob.y - 4, 16, 6);
+            ctx.fillRect(ob.x + 12, ob.y + 14, 12, 4);
+        } else {
+            ctx.fillRect(ob.x + 12, ob.y - 2, 12, 4);
+            ctx.fillRect(ob.x + 10, ob.y + 14, 16, 6);
+        }
+    } else if (ob.type === 'cactus_small') {
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(ob.x + 4, ob.y, 8, ob.h);
+        ctx.fillRect(ob.x, ob.y + 8, 6, 4);
+        ctx.fillRect(ob.x + 10, ob.y + 14, 6, 4);
+    } else if (ob.type === 'cactus_large') {
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(ob.x + 5, ob.y, 12, ob.h);
+        ctx.fillRect(ob.x, ob.y + 10, 8, 5);
+        ctx.fillRect(ob.x + 14, ob.y + 18, 8, 5);
+        ctx.fillRect(ob.x, ob.y + 10, 4, 16);
+        ctx.fillRect(ob.x + 18, ob.y + 18, 4, 12);
+    } else if (ob.type === 'cactus_cluster') {
+        ctx.fillStyle = '#38bdf8';
+        // Three small cacti grouped
+        [0, 14, 26].forEach(dx => {
+            ctx.fillRect(ob.x + dx + 2, ob.y, 8, ob.h);
+            ctx.fillRect(ob.x + dx, ob.y + 8, 4, 3);
+            ctx.fillRect(ob.x + dx + 8, ob.y + 12, 4, 3);
+        });
+    }
+}
+
+function drawGameOver() {
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 24px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('GAME OVER', W / 2, H / 2 - 10);
+    ctx.font = '14px Arial';
+    ctx.fillText('Press SPACE or tap to restart', W / 2, H / 2 + 16);
+    ctx.textAlign = 'left';
+
+    // Restart icon
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(W / 2, H / 2 + 40, 14, 0, Math.PI * 1.6);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(W / 2 + 10, H / 2 + 30);
+    ctx.lineTo(W / 2 + 14, H / 2 + 27);
+    ctx.lineTo(W / 2 + 6, H / 2 + 27);
+    ctx.fill();
+}
+
+// ========== COLLISION ==========
+function checkCollision() {
+    const dh = dino.ducking ? dino.duckH : dino.h;
+    const dy = dino.ducking ? GROUND_Y + (dino.h - dino.duckH) : dino.y;
+    const dw = dino.ducking ? 50 : dino.w;
+    // Shrink hitbox slightly for fairness
+    const dx = dino.x + 6;
+    const drx = dx + dw - 16;
+    const dry = dy + 4;
+    const drb = dy + dh - 4;
+
+    for (const ob of obstacles) {
+        const ox = ob.x + 4;
+        const orx = ob.x + ob.w - 4;
+        const ory = ob.y + 2;
+        const orb = ob.y + ob.h - 2;
+
+        if (drx > ox && dx < orx && drb > ory && dry < orb) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// ========== UPDATE ==========
+let lastObstacleAt = 0;
+
+function update() {
+    frameCount++;
+    groundOffset = (groundOffset + speed) % W;
+
+    // Increase speed over time
+    if (frameCount % 500 === 0 && speed < 14) {
+        speed += 0.3;
+    }
+
+    // Score
+    score = Math.floor(frameCount / 6);
+    if (score > 0 && score % 100 === 0 && frameCount % 6 === 0) {
+        playScoreSfx();
+    }
+
+    // Dino physics
+    if (dino.jumping) {
+        dino.vy += GRAVITY;
+        dino.y += dino.vy;
+        if (dino.y >= GROUND_Y) {
+            dino.y = GROUND_Y;
+            dino.vy = 0;
+            dino.jumping = false;
+        }
+    }
+
+    // Spawn obstacles
+    const minGap = Math.max(50, 100 - speed * 3);
+    const maxGap = Math.max(80, 160 - speed * 4);
+    const gap = minGap + Math.random() * (maxGap - minGap);
+    if (frameCount - lastObstacleAt > gap && frameCount > 40) {
+        spawnObstacle();
+        lastObstacleAt = frameCount;
+    }
+
+    // Move obstacles
+    obstacles.forEach(ob => { ob.x -= speed; });
+    obstacles = obstacles.filter(ob => ob.x > -60);
+
+    // Move clouds
+    clouds.forEach(c => { c.x -= speed * 0.3; });
+    clouds = clouds.filter(c => c.x > -80);
+    if (Math.random() < 0.003) {
+        clouds.push({ x: W + 20, y: 30 + Math.random() * 60, w: 60 + Math.random() * 40 });
+    }
+
+    // Collision
+    if (checkCollision()) {
+        gameOver = true;
+        if (score > hiScore) hiScore = score;
+        playGameOverSfx();
+    }
+}
+
+// ========== GAME LOOP ==========
+function gameLoop() {
+    if (!gameRunning) return;
+
+    ctx.clearRect(0, 0, W, H);
+
+    drawStars();
+    drawClouds();
+    drawGround();
+
+    if (!gameOver) {
+        update();
+    }
+
+    obstacles.forEach(drawObstacle);
+    drawDino();
+
+    if (gameOver) {
+        drawGameOver();
+    }
+
+    // HUD
+    const scoreStr = String(score).padStart(5, '0');
+    const hiStr = String(hiScore).padStart(5, '0');
+    document.getElementById('game-score').textContent = 'HI ' + hiStr + ' | ' + scoreStr;
+
+    animFrame = requestAnimationFrame(gameLoop);
+}
+
+// ========== CONTROLS ==========
+function dinoJump() {
+    if (dino.jumping) return;
+    dino.jumping = true;
+    dino.ducking = false;
+    dino.vy = JUMP_VEL;
+    playJumpSfx();
+}
+
+function dinoDuck(on) {
+    if (dino.jumping) return;
+    dino.ducking = on;
+    if (on) playDuckSfx();
+}
+
+document.addEventListener('keydown', function(e) {
+    if (!gameRunning) return;
+    if (e.code === 'Space' || e.code === 'ArrowUp') {
+        e.preventDefault();
+        if (gameOver) {
+            resetGame();
+        } else {
+            dinoJump();
+        }
+    }
+    if (e.code === 'ArrowDown') {
+        e.preventDefault();
+        if (!gameOver) dinoDuck(true);
+    }
+});
+
+document.addEventListener('keyup', function(e) {
+    if (!gameRunning) return;
+    if (e.code === 'ArrowDown') {
+        dinoDuck(false);
+    }
+});
+
+// Touch controls — listen on the whole game overlay so taps outside the canvas still work on mobile
+const gameOverlayEl = document.getElementById('game-overlay');
+let touchStartY = 0;
+gameOverlayEl.addEventListener('touchstart', function(e) {
+    // Don't intercept taps on buttons
+    if (e.target.tagName === 'BUTTON') return;
+    e.preventDefault();
+    touchStartY = e.touches[0].clientY;
+    if (gameOver) {
+        resetGame();
+    } else {
+        dinoJump();
+    }
+}, { passive: false });
+
+gameOverlayEl.addEventListener('touchmove', function(e) {
+    if (e.target.tagName === 'BUTTON') return;
+    e.preventDefault();
+    const dy = e.touches[0].clientY - touchStartY;
+    if (dy > 30 && !gameOver) {
+        dinoDuck(true);
+    }
+}, { passive: false });
+
+gameOverlayEl.addEventListener('touchend', function(e) {
+    if (e.target.tagName === 'BUTTON') return;
+    dinoDuck(false);
+}, { passive: false });
+
+// Click to restart on game over
+canvas.addEventListener('click', function() {
+    if (gameOver) {
+        resetGame();
+    }
+});
+
+// ========== START / EXIT ==========
+// Update instructions based on device type
+function updateInstructions() {
+    const el = document.getElementById('game-instructions');
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    if (isTouch) {
+        el.textContent = 'Tap to jump \u2014 Swipe down to duck';
+    } else {
+        el.textContent = 'SPACE / \u2191 to jump \u2014 \u2193 to duck';
+    }
+}
+
+function startGame() {
+    // Show mode selection dashboard
+    document.getElementById('mode-select').classList.add('active');
+}
+
+function closeModeSelect() {
+    document.getElementById('mode-select').classList.remove('active');
+}
+
+function selectMode(mode) {
+    currentMode = mode;
+    document.getElementById('mode-select').classList.remove('active');
+    // Update header to show current mode
+    const modeLabel = mode === 'rishi' ? 'Rishi Dino' : 'Normal Mode';
+    document.querySelector('#game-header h2').textContent = 'amrita.gg — ' + modeLabel;
+    ensureAudioCtx();
+    document.getElementById('game-overlay').classList.add('active');
+    updateInstructions();
+    gameRunning = true;
+    resetGame();
+    gameLoop();
+}
+
+function exitGame() {
+    gameRunning = false;
+    if (animFrame) cancelAnimationFrame(animFrame);
+    document.getElementById('game-overlay').classList.remove('active');
+}
+</script>
+
+<!-- Watermark -->
+<div class="watermark">
+    <span class="wm-label">crafted by</span><br>
+    <span class="wm-name">ANANDHUZ :)</span>
+</div>
+
+</body>
+</html>
